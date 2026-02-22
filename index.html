@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GOLD DZ LIVE - Bot</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root { --gold: #d4af37; --dark-blue: #0a192f; }
+        body { font-family: 'Tajawal', sans-serif; background-color: var(--dark-blue); color: white; margin: 0; padding: 15px; text-align: center; }
+        .header { border-bottom: 2px solid var(--gold); padding-bottom: 10px; margin-bottom: 20px; }
+        .header h1 { color: var(--gold); margin: 0; font-size: 1.5rem; }
+        .price-card { background: #112240; border: 1px solid var(--gold); border-radius: 12px; padding: 15px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
+        .label { font-weight: bold; font-size: 1rem; }
+        .price-value { color: var(--gold); font-size: 1.3rem; font-weight: 900; }
+        .status { font-size: 0.8rem; color: #2ecc71; margin-top: 10px; }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>GOLD DZ LIVE 💰</h1>
+        <p>أسعار الذهب في الجزائر (تحديث مباشر)</p>
+    </div>
+
+    <div id="price-list">
+        <div class="price-card">
+            <span class="label">عيار 24:</span>
+            <span class="price-value" id="res24">جاري الجلب...</span>
+        </div>
+        <div class="price-card">
+            <span class="label">عيار 21:</span>
+            <span class="price-value" id="res21">جاري الجلب...</span>
+        </div>
+        <div class="price-card">
+            <span class="label">عيار 18:</span>
+            <span class="price-value" id="res18">جاري الجلب...</span>
+        </div>
+    </div>
+
+    <div class="status" id="status">● متصل بالبورصة العالمية</div>
+
+    <script>
+        Telegram.WebApp.ready();
+        Telegram.WebApp.expand();
+
+        const OZ = 31.1034768;
+        const usdRate = 245; // القيمة الافتراضية في موقعك
+
+        function connectLive() {
+            // الاتصال بنفس المصدر الذي يستخدمه موقعك
+            const ws = new WebSocket('wss://stream.binance.com:9443/ws/paxgusdt@ticker');
+            
+            ws.onmessage = (e) => {
+                const data = JSON.parse(e.data);
+                const globalGoldPrice = parseFloat(data.c);
+                
+                if (globalGoldPrice > 0) {
+                    const price24 = (globalGoldPrice / OZ) * usdRate;
+                    const price21 = price24 * 0.875;
+                    const price18 = price24 * 0.75;
+
+                    document.getElementById('res24').innerText = Math.round(price24).toLocaleString() + " دج";
+                    document.getElementById('res21').innerText = Math.round(price21).toLocaleString() + " دج";
+                    document.getElementById('res18').innerText = Math.round(price18).toLocaleString() + " دج";
+                }
+            };
+
+            ws.onerror = () => {
+                document.getElementById('status').innerText = "○ خطأ في الاتصال";
+                document.getElementById('status').style.color = "red";
+            };
+        }
+
+        connectLive();
+    </script>
+</body>
+</html>
