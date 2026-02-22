@@ -31,7 +31,7 @@
     </div>
 
     <div id="prices">
-        <div class="price-card"><span>عيار 24:</span> <span class="value" id="g24">...</span></div>
+        <div class="price-card"><span>عيار 24:</span> <span class="value" id="g24">جاري الربط...</span></div>
         <div class="price-card"><span>عيار 21:</span> <span class="value" id="g21">...</span></div>
         <div class="price-card"><span>عيار 18:</span> <span class="value" id="g18">...</span></div>
     </div>
@@ -44,7 +44,7 @@
         <select id="conditionSelect"><option value="up">الصعود فوق ↑</option><option value="down">النزول تحت ↓</option></select>
         <input type="number" id="targetPrice" placeholder="السعر المطلوب (دج)">
         <select id="methodSelect" onchange="toggleEmailInput()"><option value="tg">تيليجرام</option><option value="mail">الإيميل</option></select>
-        <input type="email" id="userEmail" placeholder="إيميلك" style="display:none;">
+        <input type="email" id="userEmail" placeholder="إيميلك الشخصي" style="display:none;">
         <button class="btn-alert" onclick="saveSmartAlert()">تفعيل التنبيه ✅</button>
     </div>
 
@@ -57,17 +57,21 @@
 
     <script>
         Telegram.WebApp.ready();
-        // تفعيل الإيميل بمفاتيحك الحقيقية من الصور
         emailjs.init("vFHwfkXDe3GRCujAa");
 
-        const ws = new WebSocket('wss://stream.binance.com:9443/ws/paxgusdt@ticker');
-        ws.onmessage = (e) => {
-            const price = parseFloat(JSON.parse(e.data).c);
-            const p24 = (price / 31.1034) * 245;
-            document.getElementById('g24').innerText = Math.round(p24).toLocaleString() + " دج";
-            document.getElementById('g21').innerText = Math.round(p24 * 0.875).toLocaleString() + " دج";
-            document.getElementById('g18').innerText = Math.round(p24 * 0.75).toLocaleString() + " دج";
-        };
+        // نظام محسن لضمان استمرارية التزامن مع بينانص
+        function connectBinance() {
+            const ws = new WebSocket('wss://stream.binance.com:9443/ws/paxgusdt@ticker');
+            ws.onmessage = (e) => {
+                const price = parseFloat(JSON.parse(e.data).c);
+                const p24 = (price / 31.1034) * 245;
+                document.getElementById('g24').innerText = Math.round(p24).toLocaleString() + " دج";
+                document.getElementById('g21').innerText = Math.round(p24 * 0.875).toLocaleString() + " دج";
+                document.getElementById('g18').innerText = Math.round(p24 * 0.75).toLocaleString() + " دج";
+            };
+            ws.onclose = () => { setTimeout(connectBinance, 2000); }; // إعادة اتصال تلقائي في حال الانقطاع
+        }
+        connectBinance();
 
         function toggleTheme() { document.getElementById('mainBody').classList.toggle('dark-mode'); }
         function toggleEmailInput() { document.getElementById('userEmail').style.display = (document.getElementById('methodSelect').value === 'mail') ? 'block' : 'none'; }
@@ -81,19 +85,21 @@
 
             if(method === 'mail') {
                 if(!email) return alert("أدخل إيميلك!");
-                // استخدام الـ Service ID والـ Template ID الخاصين بك
+                // تحسين الإرسال وإضافة كاشف أخطاء
                 emailjs.send("service_fsuxp7k", "template_cfpavnj", {
                     to_email: email,
                     karat: document.getElementById('karatSelect').value,
                     price: price,
                     condition: document.getElementById('conditionSelect').value === 'up' ? 'ارتفاع' : 'انخفاض'
-                }).then(() => Telegram.WebApp.showAlert("✅ تم تفعيل تنبيه الإيميل! ستصلك رسالة عند تحقق الشرط."));
+                }).then(
+                    () => Telegram.WebApp.showAlert("✅ تم إرسال التنبيه التجريبي! تفقد إيميلك الآن (والـ Junk)."),
+                    (error) => Telegram.WebApp.showAlert("❌ خطأ في الإرسال: " + JSON.stringify(error))
+                );
             } else {
                 Telegram.WebApp.showAlert("✅ تم تفعيل تنبيه تيليجرام بنجاح!");
             }
         }
 
-        // ميزة الضغط المزدوج لفتح الآية الكريمة
         document.getElementById('ayah-trigger').addEventListener('dblclick', () => {
             document.getElementById('overlay').style.display = 'block';
             document.getElementById('ayah-popup').style.display = 'block';
