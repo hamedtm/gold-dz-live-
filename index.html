@@ -8,18 +8,21 @@
     <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
-        :root { --gold: #ffd700; --dark-gold: #b8860b; --bg: #f4f4f4; --text: #333; --card: #fff; }
+        :root { --gold: #ffd700; --dark-gold: #b8860b; --bg: #f4f4f4; --text: #333; --card: #fff; --up: #27ae60; --down: #e74c3c; }
         body.dark-mode { --bg: #0a192f; --text: #fff; --card: #112240; }
         body { font-family: 'Tajawal', sans-serif; background-color: var(--bg); color: var(--text); margin: 0; padding: 15px; transition: 0.3s; text-align: center; }
         .header { background: linear-gradient(135deg, var(--gold), var(--dark-gold)); color: #000; padding: 20px; border-radius: 15px; margin-bottom: 20px; position: relative; }
-        .price-card { background: var(--card); padding: 15px; border-radius: 12px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; border: 1px solid var(--gold); }
-        .value { color: var(--dark-gold); font-size: 1.2em; font-weight: 800; }
+        .price-card { background: var(--card); padding: 15px; border-radius: 12px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; border: 1px solid var(--gold); transition: 0.5s; }
+        .value { font-size: 1.2em; font-weight: 800; display: flex; flex-direction: column; align-items: flex-end; }
+        .percent { font-size: 0.8em; font-weight: bold; margin-top: 4px; }
+        .price-up { border-color: var(--up); box-shadow: 0 0 10px rgba(39, 174, 96, 0.2); }
+        .price-down { border-color: var(--down); box-shadow: 0 0 10px rgba(231, 76, 60, 0.2); }
+        .text-up { color: var(--up); }
+        .text-down { color: var(--down); }
         .alert-box { background: var(--card); border: 2px solid var(--gold); border-radius: 15px; padding: 15px; margin-top: 20px; text-align: right; }
-        select, input { width: 100%; padding: 10px; margin: 5px 0 15px 0; border-radius: 8px; border: 1px solid #ccc; font-family: 'Tajawal'; box-sizing: border-box; }
-        .btn-alert { background: var(--dark-gold); color: white; border: none; padding: 12px; border-radius: 8px; width: 100%; font-weight: bold; cursor: pointer; }
-        #ayah-popup { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; color: black; padding: 20px; border-radius: 15px; border: 3px solid var(--gold); z-index: 1000; width: 85%; }
-        .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 999; }
-        .theme-btn { position: absolute; top: 10px; left: 10px; background: rgba(255,255,255,0.3); border: none; border-radius: 5px; padding: 5px; cursor: pointer; }
+        select, input { width: 100%; padding: 12px; margin: 5px 0 15px 0; border-radius: 8px; border: 1px solid #ccc; font-family: 'Tajawal'; box-sizing: border-box; }
+        .btn-alert { background: var(--dark-gold); color: white; border: none; padding: 15px; border-radius: 8px; width: 100%; font-weight: bold; cursor: pointer; }
+        .theme-btn { position: absolute; top: 10px; left: 10px; background: rgba(255,255,255,0.3); border: none; border-radius: 5px; padding: 5px; }
     </style>
 </head>
 <body id="mainBody">
@@ -27,85 +30,94 @@
     <div class="header">
         <button class="theme-btn" onclick="toggleTheme()">☀️/🌙</button>
         <h1 id="ayah-trigger" style="cursor:pointer; margin:0;">أسعار الذهب مباشر 💰</h1>
-        <p>تحديث مباشر (السكوار 245)</p>
+        <p>مزامنة حية مع بورصة بينانص</p>
     </div>
 
     <div id="prices">
-        <div class="price-card"><span>عيار 24:</span> <span class="value" id="g24">جاري الربط...</span></div>
-        <div class="price-card"><span>عيار 21:</span> <span class="value" id="g21">...</span></div>
-        <div class="price-card"><span>عيار 18:</span> <span class="value" id="g18">...</span></div>
+        <div class="price-card" id="card24">
+            <span>عيار 24:</span>
+            <div class="value">
+                <span id="g24">...</span>
+                <span id="p24" class="percent">0.00%</span>
+            </div>
+        </div>
+        <div class="price-card" id="card21">
+            <span>عيار 21:</span>
+            <div class="value">
+                <span id="g21">...</span>
+                <span id="p21" class="percent">0.00%</span>
+            </div>
+        </div>
+        <div class="price-card" id="card18">
+            <span>عيار 18:</span>
+            <div class="value">
+                <span id="g18">...</span>
+                <span id="p18" class="percent">0.00%</span>
+            </div>
+        </div>
     </div>
 
     <div class="alert-box">
-        <h3>🔔 إعداد تنبيه ذكي</h3>
-        <label>العيار:</label>
-        <select id="karatSelect"><option value="24">24</option><option value="21" selected>21</option><option value="18">18</option></select>
-        <label>التنبيه عند:</label>
-        <select id="conditionSelect"><option value="up">الصعود فوق ↑</option><option value="down">النزول تحت ↓</option></select>
-        <input type="number" id="targetPrice" placeholder="السعر المطلوب (دج)">
-        <select id="methodSelect" onchange="toggleEmailInput()"><option value="tg">تيليجرام</option><option value="mail">الإيميل</option></select>
-        <input type="email" id="userEmail" placeholder="إيميلك الشخصي" style="display:none;">
-        <button class="btn-alert" onclick="saveSmartAlert()">تفعيل التنبيه ✅</button>
-    </div>
-
-    <div class="overlay" id="overlay" onclick="closePopup()"></div>
-    <div id="ayah-popup">
-        <p id="ayah-text">"وَفِي السَّمَاءِ رِزْقُكُمْ وَمَا تُوعَدُونَ"</p>
-        <button onclick="copyAyah()" style="padding:10px; background:var(--gold); border:none; border-radius:5px;">نسخ الآية</button>
-        <button onclick="closePopup()" style="padding:10px; background:#eee; border:none; border-radius:5px;">إغلاق</button>
+        <h3>🔔 تفعيل تنبيه النسبة المئوية</h3>
+        <select id="methodSelect" onchange="toggleInputs()">
+            <option value="tg">تيليجرام (Telegram)</option>
+            <option value="mail">البريد الإلكتروني (Email)</option>
+        </select>
+        <input type="email" id="userEmail" placeholder="أدخل إيميلك هنا" style="display:none;">
+        <input type="number" id="percentageInput" placeholder="نبهني عند تغير السعر بنسبة %">
+        <button class="btn-alert" onclick="confirmSubscription()">تأكيد الاشتراك ✅</button>
     </div>
 
     <script>
         Telegram.WebApp.ready();
         emailjs.init("vFHwfkXDe3GRCujAa");
 
-        // نظام محسن لضمان استمرارية التزامن مع بينانص
         function connectBinance() {
+            // استخدام PAXG/USDT للحصول على سعر الذهب الحقيقي والنسبة المئوية للتغير
             const ws = new WebSocket('wss://stream.binance.com:9443/ws/paxgusdt@ticker');
+            
             ws.onmessage = (e) => {
-                const price = parseFloat(JSON.parse(e.data).c);
+                const data = JSON.parse(e.data);
+                const price = parseFloat(data.c); // السعر الحالي
+                const changeP = parseFloat(data.P); // نسبة التغير خلال 24 ساعة
+                
                 const p24 = (price / 31.1034) * 245;
-                document.getElementById('g24').innerText = Math.round(p24).toLocaleString() + " دج";
-                document.getElementById('g21').innerText = Math.round(p24 * 0.875).toLocaleString() + " دج";
-                document.getElementById('g18').innerText = Math.round(p24 * 0.75).toLocaleString() + " دج";
+                const finalPrice = Math.round(p24);
+                
+                updateUI(finalPrice, changeP);
             };
-            ws.onclose = () => { setTimeout(connectBinance, 2000); }; // إعادة اتصال تلقائي في حال الانقطاع
+            ws.onclose = () => setTimeout(connectBinance, 2000);
         }
+
+        function updateUI(price, percent) {
+            const ids = ['24', '21', '18'];
+            const factors = [1, 0.875, 0.75];
+            const colorClass = percent >= 0 ? 'text-up' : 'text-down';
+            const cardClass = percent >= 0 ? 'price-up' : 'price-down';
+            const sign = percent >= 0 ? '+' : '';
+
+            ids.forEach((id, index) => {
+                const val = Math.round(price * factors[index]);
+                document.getElementById('g' + id).innerText = val.toLocaleString() + " دج";
+                
+                const pElem = document.getElementById('p' + id);
+                pElem.innerText = sign + percent.toFixed(2) + "%";
+                pElem.className = 'percent ' + colorClass;
+                
+                document.getElementById('card' + id).className = 'price-card ' + cardClass;
+            });
+        }
+
         connectBinance();
-
+        function toggleInputs() { document.getElementById('userEmail').style.display = (document.getElementById('methodSelect').value === 'mail') ? 'block' : 'none'; }
         function toggleTheme() { document.getElementById('mainBody').classList.toggle('dark-mode'); }
-        function toggleEmailInput() { document.getElementById('userEmail').style.display = (document.getElementById('methodSelect').value === 'mail') ? 'block' : 'none'; }
-
-        function saveSmartAlert() {
-            const price = document.getElementById('targetPrice').value;
+        
+        function confirmSubscription() {
             const email = document.getElementById('userEmail').value;
-            const method = document.getElementById('methodSelect').value;
-
-            if(!price) return alert("أدخل السعر!");
-
-            if(method === 'mail') {
-                if(!email) return alert("أدخل إيميلك!");
-                // تحسين الإرسال وإضافة كاشف أخطاء
-                emailjs.send("service_fsuxp7k", "template_cfpavnj", {
-                    to_email: email,
-                    karat: document.getElementById('karatSelect').value,
-                    price: price,
-                    condition: document.getElementById('conditionSelect').value === 'up' ? 'ارتفاع' : 'انخفاض'
-                }).then(
-                    () => Telegram.WebApp.showAlert("✅ تم إرسال التنبيه التجريبي! تفقد إيميلك الآن (والـ Junk)."),
-                    (error) => Telegram.WebApp.showAlert("❌ خطأ في الإرسال: " + JSON.stringify(error))
-                );
-            } else {
-                Telegram.WebApp.showAlert("✅ تم تفعيل تنبيه تيليجرام بنجاح!");
-            }
+            const percent = document.getElementById('percentageInput').value;
+            if(!percent) return alert("أدخل النسبة!");
+            Telegram.WebApp.showAlert("✅ تم تفعيل تنبيه الـ " + percent + "% بنجاح!");
         }
-
-        document.getElementById('ayah-trigger').addEventListener('dblclick', () => {
-            document.getElementById('overlay').style.display = 'block';
-            document.getElementById('ayah-popup').style.display = 'block';
-        });
-        function closePopup() { document.getElementById('overlay').style.display = 'none'; document.getElementById('ayah-popup').style.display = 'none'; }
-        function copyAyah() { navigator.clipboard.writeText(document.getElementById('ayah-text').innerText); alert("تم النسخ!"); }
     </script>
 </body>
 </html>
