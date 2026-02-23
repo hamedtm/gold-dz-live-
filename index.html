@@ -11,7 +11,8 @@
         :root { --gold: #ffd700; --dark-gold: #b8860b; --bg: #f4f4f4; --text: #333; --card: #fff; --up: #27ae60; --down: #e74c3c; }
         body.dark-mode { --bg: #0a192f; --text: #fff; --card: #112240; }
         body { font-family: 'Tajawal', sans-serif; background-color: var(--bg); color: var(--text); margin: 0; padding: 15px; transition: 0.3s; text-align: center; }
-        .header { background: linear-gradient(135deg, var(--gold), var(--dark-gold)); color: #000; padding: 20px; border-radius: 15px; margin-bottom: 20px; position: relative; }
+        .header { background: linear-gradient(135deg, var(--gold), var(--dark-gold)); color: #000; padding: 20px; border-radius: 15px; margin-bottom: 10px; position: relative; }
+        .sub-count { font-size: 0.9em; margin-bottom: 20px; color: var(--dark-gold); font-weight: bold; background: var(--card); display: inline-block; padding: 5px 15px; border-radius: 20px; border: 1px solid var(--gold); }
         .price-card { background: var(--card); padding: 15px; border-radius: 12px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; border: 1px solid var(--gold); transition: 0.5s; }
         .value { font-size: 1.2em; font-weight: 800; display: flex; flex-direction: column; align-items: flex-end; }
         .percent { font-size: 0.8em; font-weight: bold; margin-top: 4px; }
@@ -22,7 +23,7 @@
         .alert-box { background: var(--card); border: 2px solid var(--gold); border-radius: 15px; padding: 15px; margin-top: 20px; text-align: right; }
         select, input { width: 100%; padding: 12px; margin: 5px 0 15px 0; border-radius: 8px; border: 1px solid #ccc; font-family: 'Tajawal'; box-sizing: border-box; }
         .btn-alert { background: var(--dark-gold); color: white; border: none; padding: 15px; border-radius: 8px; width: 100%; font-weight: bold; cursor: pointer; }
-        .theme-btn { position: absolute; top: 10px; left: 10px; background: rgba(255,255,255,0.3); border: none; border-radius: 5px; padding: 5px; }
+        .theme-btn { position: absolute; top: 10px; left: 10px; background: rgba(255,255,255,0.3); border: none; border-radius: 5px; padding: 5px; cursor: pointer; }
     </style>
 </head>
 <body id="mainBody">
@@ -30,7 +31,11 @@
     <div class="header">
         <button class="theme-btn" onclick="toggleTheme()">☀️/🌙</button>
         <h1 id="ayah-trigger" style="cursor:pointer; margin:0;">أسعار الذهب مباشر 💰</h1>
-        <p>مزامنة حية مع بورصة بينانص</p>
+        <p style="margin: 5px 0;">مزامنة حية مع بورصة بينانص</p>
+    </div>
+
+    <div class="sub-count">
+        👥 عدد المشتركين الآن: <span id="userCount">1,248</span> عضو
     </div>
 
     <div id="prices">
@@ -58,7 +63,7 @@
     </div>
 
     <div class="alert-box">
-        <h3>🔔 تفعيل تنبيه تغيير السعر النسبة المئوية</h3>
+        <h3>🔔 تفعيل تنبيه النسبة المئوية</h3>
         <select id="methodSelect" onchange="toggleInputs()">
             <option value="tg">تيليجرام (Telegram)</option>
             <option value="mail">البريد الإلكتروني (Email)</option>
@@ -73,18 +78,13 @@
         emailjs.init("vFHwfkXDe3GRCujAa");
 
         function connectBinance() {
-            // استخدام PAXG/USDT للحصول على سعر الذهب الحقيقي والنسبة المئوية للتغير
             const ws = new WebSocket('wss://stream.binance.com:9443/ws/paxgusdt@ticker');
-            
             ws.onmessage = (e) => {
                 const data = JSON.parse(e.data);
-                const price = parseFloat(data.c); // السعر الحالي
-                const changeP = parseFloat(data.P); // نسبة التغير خلال 24 ساعة
-                
+                const price = parseFloat(data.c);
+                const changeP = parseFloat(data.P);
                 const p24 = (price / 31.1034) * 245;
-                const finalPrice = Math.round(p24);
-                
-                updateUI(finalPrice, changeP);
+                updateUI(Math.round(p24), changeP);
             };
             ws.onclose = () => setTimeout(connectBinance, 2000);
         }
@@ -99,11 +99,9 @@
             ids.forEach((id, index) => {
                 const val = Math.round(price * factors[index]);
                 document.getElementById('g' + id).innerText = val.toLocaleString() + " دج";
-                
                 const pElem = document.getElementById('p' + id);
                 pElem.innerText = sign + percent.toFixed(2) + "%";
                 pElem.className = 'percent ' + colorClass;
-                
                 document.getElementById('card' + id).className = 'price-card ' + cardClass;
             });
         }
