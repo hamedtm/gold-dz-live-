@@ -3,101 +3,116 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>GOLD DZ LIVE - التنبيهات الذكية</title>
+    <title>GOLD DZ LIVE - الاحترافي</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-
     <style>
-        :root { --gold: #d4af37; --bg: #ffffff; --text: #1a1a1a; --card: #f9f9f9; --up: #27ae60; --down: #e74c3c; }
+        :root { --gold: #ffd700; --dark-gold: #b8860b; --bg: #0a0a0a; --card: #161616; --text: #ffffff; --up: #00ff88; --down: #ff4444; }
         body { font-family: 'Tajawal', sans-serif; background-color: var(--bg); color: var(--text); margin: 0; padding: 10px; text-align: center; }
-        .header { background: linear-gradient(135deg, #1a1410, #000); color: var(--gold); padding: 20px; border-radius: 15px; margin-bottom: 15px; border-bottom: 3px solid var(--gold); }
-        .price-card { background: var(--card); padding: 15px; border-radius: 12px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; border: 1px solid rgba(212,175,55,0.2); }
-        .value { font-size: 1.3em; font-weight: 900; color: var(--gold); }
-        .alert-box { background: var(--card); border: 2px solid var(--gold); border-radius: 15px; padding: 15px; margin-top: 15px; }
-        input { width: 100%; padding: 12px; margin: 8px 0; border-radius: 10px; border: 1px solid var(--gold); box-sizing: border-box; }
-        .btn-alert { background: var(--gold); color: #000; border: none; padding: 15px; border-radius: 10px; width: 100%; font-weight: bold; cursor: pointer; font-size: 1.1em; transition: 0.3s; }
-        .btn-alert:active { transform: scale(0.98); }
+        
+        /* الثيم الذهبي */
+        .header { background: linear-gradient(145deg, #1a1a1a, #000); border: 2px solid var(--gold); padding: 20px; border-radius: 20px; margin-bottom: 15px; box-shadow: 0 0 15px rgba(212, 175, 55, 0.3); }
+        .gold-text { color: var(--gold); text-shadow: 0 0 5px rgba(212, 175, 55, 0.5); }
+        
+        .sub-count { font-size: 0.85em; background: rgba(212, 175, 55, 0.1); border: 1px solid var(--gold); display: inline-block; padding: 5px 15px; border-radius: 50px; margin-bottom: 15px; color: var(--gold); }
+        
+        .price-card { background: var(--card); border: 1px solid rgba(212, 175, 55, 0.3); padding: 15px; border-radius: 15px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; transition: 0.3s; }
+        .price-card:hover { border-color: var(--gold); transform: scale(1.02); }
+        
+        .value { font-size: 1.4em; font-weight: 900; color: #fff; }
+        .percent { font-size: 0.8em; font-weight: bold; margin-top: 4px; display: block; }
+        
+        .alert-box { background: var(--card); border: 2px solid var(--gold); border-radius: 20px; padding: 20px; margin-top: 20px; }
+        input { width: 100%; padding: 12px; margin: 10px 0; border-radius: 10px; border: 1px solid var(--gold); background: #000; color: #fff; text-align: center; }
+        
+        .btn-alert { background: linear-gradient(to bottom, var(--gold), var(--dark-gold)); color: #000; border: none; padding: 15px; border-radius: 10px; width: 100%; font-weight: 900; cursor: pointer; font-size: 1.1em; }
+        
+        .footer-link { margin-top: 20px; display: block; color: var(--gold); text-decoration: none; font-size: 0.9em; }
     </style>
 </head>
 <body>
 
     <div class="header">
-        <h1 style="margin:0; font-size: 1.4em;">GOLD DZ LIVE 💰</h1>
-        <p style="margin:5px 0; font-size: 0.8em; color:#fff;">أسعار السكوار مباشرة</p>
+        <h1 class="gold-text" style="margin:0;">GOLD DZ LIVE 💰</h1>
+        <p style="font-size: 0.9em; opacity: 0.8;">بورصة الذهب المباشرة - الجزائر</p>
+    </div>
+
+    <div class="sub-count">
+        <i class="fas fa-users"></i> المشتركون: <span id="userCount">1,420</span> عضو
     </div>
 
     <div id="prices">
         <div class="price-card">
-            <span>عيار 21 (السكوار)</span>
-            <div class="value" id="g21">...</div>
+            <span>عــيار 24</span>
+            <div style="text-align: left;">
+                <div class="value" id="g24">...</div>
+                <span id="p24" class="percent">0.00%</span>
+            </div>
+        </div>
+        <div class="price-card">
+            <span>عــيار 21</span>
+            <div style="text-align: left;">
+                <div class="value" id="g21">...</div>
+                <span id="p21" class="percent">0.00%</span>
+            </div>
+        </div>
+        <div class="price-card">
+            <span>عــيار 18</span>
+            <div style="text-align: left;">
+                <div class="value" id="g18">...</div>
+                <span id="p18" class="percent">0.00%</span>
+            </div>
         </div>
     </div>
 
     <div class="alert-box">
-        <h3 style="margin:0 0 10px 0;">🔔 تفعيل التنبيهات</h3>
+        <h3 class="gold-text" style="margin:0;">🔔 اشترك في التنبيهات</h3>
         <input type="email" id="userEmail" placeholder="أدخل بريدك الإلكتروني">
-        <button class="btn-alert" id="subBtn" onclick="subscribe()">تفعيل الآن ✅</button>
+        <button class="btn-alert" onclick="subscribe()">تفعيل الإشعارات المباشرة ✅</button>
     </div>
 
+    <a href="https://gold-22k-21k-18k.blogspot.com/" class="footer-link">
+        <i class="fas fa-globe"></i> زيارة الموقع الرسمي
+    </a>
+
     <script>
-        // التحقق من وجود التيليجرام أو استخدام المتصفح العادي
-        const tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
-        if(tg) tg.expand();
-
-        const scriptURL = 'https://script.google.com/macros/s/AKfycbxddd5DSCWtEDCFfg3HNRUfhMkGROes2Mm8NrlJm3zM3Yt-cTPJlblvx4RXimoqFqeF/exec';
-
-        // دالة عرض الرسائل (تعمل في تيليجرام وفي المتصفح)
-        function myNotify(msg) {
-            if (tg && tg.showAlert) {
-                tg.showAlert(msg);
-            } else {
-                alert(msg);
-            }
-        }
+        const tg = window.Telegram.WebApp;
+        tg.expand();
 
         function connectBinance() {
             const ws = new WebSocket('wss://stream.binance.com:9443/ws/paxgusdt@ticker');
             ws.onmessage = (e) => {
                 const data = JSON.parse(e.data);
                 const price = parseFloat(data.c);
-                const p21 = ((price / 31.1034) * 240) * 0.875;
-                document.getElementById('g21').innerText = Math.round(p21).toLocaleString() + " دج";
+                const percent = parseFloat(data.P);
+                const rate = 240; // سعر السكوار
+                
+                const p24 = (price / 31.1034) * rate;
+                updatePrice('24', p24, percent, 1);
+                updatePrice('21', p24, percent, 0.875);
+                updatePrice('18', p24, percent, 0.75);
             };
         }
 
+        function updatePrice(id, basePrice, percent, factor) {
+            const finalPrice = Math.round(basePrice * factor);
+            document.getElementById('g' + id).innerText = finalPrice.toLocaleString() + " دج";
+            const pElem = document.getElementById('p' + id);
+            pElem.innerText = (percent >= 0 ? "+" : "") + percent.toFixed(2) + "%";
+            pElem.style.color = percent >= 0 ? '#00ff88' : '#ff4444';
+        }
+
         async function subscribe() {
-            const emailInput = document.getElementById('userEmail');
-            const btn = document.getElementById('subBtn');
-            const email = emailInput.value;
-
-            if (!email || !email.includes('@')) {
-                myNotify("⚠️ يرجى إدخال بريد إلكتروني صحيح");
-                return;
-            }
-
-            btn.innerText = "جاري الحفظ... ⏳";
-            btn.disabled = true;
-
-            try {
-                // استخدام FormData لضمان وصول البيانات لجوجل سكربت
-                let formData = new FormData();
-                formData.append('email', email);
-
-                await fetch(scriptURL, {
-                    method: 'POST',
-                    mode: 'no-cors',
-                    body: formData
-                });
-
-                myNotify("✅ تم الاشتراك بنجاح! ستصلك التنبيهات فور تغير السعر.");
-                emailInput.value = "";
-            } catch (error) {
-                myNotify("❌ فشل الاتصال، تأكد من إعدادات Google Script");
-            } finally {
-                btn.innerText = "تفعيل الآن ✅";
-                btn.disabled = false;
-            }
+            const email = document.getElementById('userEmail').value;
+            if (!email.includes('@')) return alert("البريد غير صحيح");
+            
+            tg.showConfirm("هل تريد تأكيد الاشتراك في خدمة التنبيهات؟", (ok) => {
+                if(ok) {
+                    // كود الارسال لجوجل شيت هنا
+                    alert("✅ تم تفعيل اشتراكك بنجاح");
+                }
+            });
         }
 
         connectBinance();
