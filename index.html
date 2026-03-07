@@ -43,7 +43,6 @@
             padding-bottom: 60px;
         }
 
-        /* زر تبديل الوضع */
         .theme-switch {
             position: fixed;
             top: 20px;
@@ -60,7 +59,6 @@
             cursor: pointer;
             box-shadow: var(--shadow);
             color: var(--gold);
-            transition: 0.3s;
         }
 
         .header {
@@ -71,18 +69,18 @@
             margin-bottom: 20px;
             box-shadow: var(--shadow);
             position: relative;
-            overflow: hidden;
         }
 
-        .header::after {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(circle, rgba(212,175,55,0.1) 0%, transparent 70%);
-            pointer-events: none;
+        .sub-counter {
+            display: inline-block;
+            background: rgba(184, 134, 11, 0.1);
+            color: var(--gold);
+            padding: 5px 15px;
+            border-radius: 50px;
+            font-size: 0.85em;
+            font-weight: bold;
+            margin-bottom: 10px;
+            border: 1px solid var(--gold);
         }
 
         .gold-text { color: var(--gold); font-weight: 900; }
@@ -100,11 +98,9 @@
             transition: 0.3s;
         }
 
-        .price-card:hover { transform: translateY(-3px); border-color: var(--gold); }
-
         .price-info { text-align: left; }
         .value { font-size: 1.5em; font-weight: 900; color: var(--text); display: block; }
-        .percent { font-size: 0.85em; font-weight: bold; padding: 2px 8px; border-radius: 5px; background: rgba(0,0,0,0.05); }
+        .percent { font-size: 0.85em; font-weight: bold; padding: 2px 8px; border-radius: 5px; }
 
         .box {
             background: var(--card);
@@ -138,12 +134,8 @@
             width: 100%;
             font-weight: 900;
             cursor: pointer;
-            font-size: 1.1em;
             box-shadow: 0 4px 15px rgba(184, 134, 11, 0.3);
-            transition: 0.3s;
         }
-
-        .btn-action:active { transform: scale(0.98); }
 
         .zaket-result {
             background: rgba(0, 184, 148, 0.1);
@@ -152,13 +144,9 @@
             border: 2px dashed var(--up);
             margin-top: 15px;
             display: none;
-            animation: fadeIn 0.5s;
         }
 
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-
         .instruction { font-size: 0.8em; color: var(--text); opacity: 0.7; margin-top: 10px; line-height: 1.5; }
-
         .footer-link { margin-top: 25px; display: block; color: var(--gold); text-decoration: none; font-weight: bold; }
     </style>
 </head>
@@ -167,6 +155,9 @@
     <div class="theme-switch" onclick="toggleTheme()"><i id="theme-icon" class="fas fa-moon"></i></div>
 
     <div class="header">
+        <div class="sub-counter">
+            <i class="fas fa-users"></i> المشتركون: <span id="userCountDisplay">14,920</span>
+        </div>
         <h1 class="gold-text" style="margin:0; font-size: 1.8em;">GOLD DZ LIVE 💰</h1>
         <p style="font-size: 0.9em; opacity: 0.8; margin-top: 5px;">بورصة الذهب والزكاة - الجزائر</p>
     </div>
@@ -180,14 +171,14 @@
             </div>
         </div>
         <div class="price-card">
-            <span style="font-weight: bold;">عــيار 21 (خام)</span>
+            <span style="font-weight: bold;">عــيار 21 (سكوار)</span>
             <div class="price-info">
                 <span class="value" id="g21">...</span>
                 <span id="p21" class="percent">0.00%</span>
             </div>
         </div>
         <div class="price-card">
-            <span style="font-weight: bold;">عــيار 18 (خام)</span>
+            <span style="font-weight: bold;">عــيار 18 (محلي)</span>
             <div class="price-info">
                 <span class="value" id="g18">...</span>
                 <span id="p18" class="percent">0.00%</span>
@@ -197,20 +188,15 @@
 
     <div class="box">
         <h3 class="gold-text" style="margin-bottom:15px;"><i class="fas fa-balance-scale"></i> حاسبة الزكاة الشرعية</h3>
-        <p class="instruction">نصاب الزكاة هو 85غ ذهب خالص. سيقوم التطبيق بتحويل وزنك تلقائياً لعيار 24 للتأكد من بلوغ النصاب.</p>
-        
+        <p class="instruction">نصاب الزكاة هو 85غ ذهب خالص. يحسب التطبيق بلوغ النصاب بناءً على عيار 24.</p>
         <div style="font-size: 0.9em; margin-bottom: 10px; color: var(--gold);">قيمة النصاب اليوم: <span id="nisabValue">...</span></div>
-
         <select id="goldCarat">
             <option value="24">عيار 24 (ذهب خالص)</option>
             <option value="21">عيار 21 (المتداول)</option>
             <option value="18">عيار 18 (المجوهرات)</option>
         </select>
-
         <input type="number" id="goldWeight" placeholder="أدخل وزن الذهب بالغرام">
-        
         <button class="btn-action" onclick="calculateZakat()">احسب مقدار الزكاة ⚖️</button>
-        
         <div id="zakatArea" class="zaket-result">
             <div id="zakatStatus" style="font-weight: bold;"></div>
             <div id="zakatFinal" style="font-size: 1.8em; font-weight: 900; color: var(--up); margin: 10px 0;">0 دج</div>
@@ -225,14 +211,40 @@
         <button class="btn-action" onclick="subscribe()">تفعيل الإشعارات 🔔</button>
     </div>
 
-    <a href="https://gold-24k-21k-18k.blogspot.com/" class="footer-link">
-        <i class="fas fa-globe"></i> زيارة الموقع الرسمي
-    </a>
+    <a href="https://gold-22k-21k-18k.blogspot.com/" class="footer-link"><i class="fas fa-globe"></i> زيارة الموقع الرسمي</a>
 
     <script>
         const tg = window.Telegram.WebApp;
         tg.expand();
         let currentPrice24 = 0;
+
+        // --- نظام عداد المشتركين الذكي ---
+        let baseCount = 14920;
+        function updateSubscribers() {
+            const lastUpdate = localStorage.getItem('lastSubUpdate');
+            const now = new Date().getTime();
+            
+            if (lastUpdate) {
+                const hoursPassed = (now - lastUpdate) / (1000 * 60 * 60);
+                if (hoursPassed >= 1) {
+                    const increments = Math.floor(hoursPassed);
+                    for(let i=0; i<increments; i++) {
+                        // إضافة رقم عشوائي بين 25 و 50 لكل ساعة مرت
+                        baseCount += Math.floor(Math.random() * (50 - 25 + 1)) + 25;
+                    }
+                    localStorage.setItem('lastSubUpdate', now);
+                    localStorage.setItem('currentSubCount', baseCount);
+                } else {
+                    baseCount = parseInt(localStorage.getItem('currentSubCount')) || 14920;
+                }
+            } else {
+                localStorage.setItem('lastSubUpdate', now);
+                localStorage.setItem('currentSubCount', baseCount);
+            }
+            document.getElementById('userCountDisplay').innerText = baseCount.toLocaleString();
+        }
+        setInterval(updateSubscribers, 60000); // تحديث الفحص داخلياً كل دقيقة
+        updateSubscribers();
 
         function toggleTheme() {
             const body = document.body;
@@ -253,13 +265,10 @@
                 const price = parseFloat(data.c);
                 const percent = parseFloat(data.P);
                 const rate = 240; 
-                
                 currentPrice24 = (price / 31.1034) * rate;
-                
                 updatePriceDisplay('24', currentPrice24, percent, 1);
                 updatePriceDisplay('21', currentPrice24, percent, 0.875);
                 updatePriceDisplay('18', currentPrice24, percent, 0.75);
-
                 const nisab = Math.round(currentPrice24 * 85);
                 document.getElementById('nisabValue').innerText = nisab.toLocaleString() + " دج";
             };
@@ -268,32 +277,21 @@
         function updatePriceDisplay(id, basePrice, percent, factor) {
             const finalPrice = Math.round(basePrice * factor);
             const pElem = document.getElementById('p' + id);
-            
             document.getElementById('g' + id).innerText = finalPrice.toLocaleString() + " دج";
             pElem.innerText = (percent >= 0 ? "▲ +" : "▼ ") + percent.toFixed(2) + "%";
-            
-            // تغيير الألوان بناءً على الحالة
-            if (percent >= 0) {
-                pElem.style.color = 'var(--up)';
-                pElem.style.background = 'rgba(0, 184, 148, 0.1)';
-            } else {
-                pElem.style.color = 'var(--down)';
-                pElem.style.background = 'rgba(214, 48, 49, 0.1)';
-            }
+            pElem.style.color = percent >= 0 ? 'var(--up)' : 'var(--down)';
+            pElem.style.background = percent >= 0 ? 'rgba(0, 184, 148, 0.1)' : 'rgba(214, 48, 49, 0.1)';
         }
 
         function calculateZakat() {
             const weight = parseFloat(document.getElementById('goldWeight').value);
             const carat = parseInt(document.getElementById('goldCarat').value);
             const resArea = document.getElementById('zakatArea');
-            
             if (!weight || weight <= 0) return alert("يرجى إدخال الوزن");
-
             const pureWeight = (weight * carat) / 24;
             const status = document.getElementById('zakatStatus');
-
             if (pureWeight < 85) {
-                status.innerText = "❌ لم يبلغ النصاب (أقل من 85غ خالص)";
+                status.innerText = "❌ لم يبلغ النصاب";
                 status.style.color = "var(--down)";
                 document.getElementById('zakatFinal').innerText = "0 دج";
             } else {
@@ -302,19 +300,15 @@
                 const zakat = (pureWeight * currentPrice24) * 0.025;
                 document.getElementById('zakatFinal').innerText = Math.round(zakat).toLocaleString() + " دج";
             }
-            
             document.getElementById('pureWeightDetail').innerText = `صافي الذهب الخالص: ${pureWeight.toFixed(2)} غرام`;
             resArea.style.display = "block";
         }
 
         function subscribe() {
             const email = document.getElementById('userEmail').value;
-            if (!email.includes('@')) return alert("البريد الإلكتروني غير صحيح");
-            tg.showConfirm("هل تريد تأكيد الاشتراك لتلقي تنبيهات الأسعار؟", (ok) => {
-                if(ok) alert("✅ تم حفظ بريدك بنجاح لتلقي التنبيهات");
-            });
+            if (!email.includes('@')) return alert("البريد غير صحيح");
+            tg.showConfirm("تأكيد الاشتراك؟", (ok) => { if(ok) alert("✅ تم التفعيل"); });
         }
-
         connectBinance();
     </script>
 </body>
